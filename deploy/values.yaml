@@ -1,0 +1,91 @@
+# Default values for chp_api.
+
+replicaCount: 1
+
+image:
+  repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-rtx-chp-api
+  pullPolicy: IfNotPresent
+  tag: "BUILD_VERSION"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  type: LoadBalancer
+  port: 80
+
+nginx:
+  enabled: true
+  image:
+    repository: nginx
+    tag: alpine
+    pullPolicy: IfNotPresent
+
+  config:
+    default: true
+
+  resources: {}
+
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Environment=CI
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+    alb.ingress.kubernetes.io/security-groups: translator-ci-alb-http-sg
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2-Ext-2018-06
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    alb.ingress.kubernetes.io/success-codes: '200'
+    alb.ingress.kubernetes.io/healthcheck-path: '/'
+  host: chp-api.ci.transltr.io
+
+# With the following two sections, we can restrict the deployment on and only on the specific node
+# toleration to node taint such that this deployment can be scheduled on the tainted node while others without the toleration can not
+tolerations: 
+- key      : "transltr"
+  value    : "chp-api"
+  operator : "Equal"
+  effect   : "NoSchedule"
+
+# nodeSelection affinity(application=chp_api) such that this deployment will only select the node with that label
+affinity: 
+  # this ensures pod only runs on node with label application=chp_api
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: application
+          operator: In
+          values:
+          - chp-api
+  # this ensures only ONE pod will run on each node
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - chp-api
+      topologyKey: "kubernetes.io/hostname"
+
+#env variables
+debug: DEBUG_PH
+secret_key: SECRET_KEY_PH
+django_allowed_hosts: DJANGO_ALLOWED_HOSTS
+sql_engine: SQL_ENGINE_PH
+sql_database: SQL_DATABASE
+sql_user: SQL_USER_PH
+sql_password: SQL_PASSWORD_PH
+sql_host: SQL_HOST_PH
+sql_port: SQL_PORT_PH
+database: DATABASE_PH
+django_settings_module: DJANGO_SETTINGS_MODULE_PH

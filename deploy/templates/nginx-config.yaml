@@ -1,0 +1,39 @@
+{{- if .Values.nginx.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chp.fullname" . }}-nginxconfig
+  labels:
+    app.kubernetes.io/name: {{ include "chp.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  nginx.conf: |-
+{{- if .Values.nginx.config.default }}
+
+    upstream chp_api {
+        server web:8000;
+    }
+
+    server {
+        listen 80;
+
+        # set max upload size
+        client_max_body_size 100M;
+
+        location / {
+            proxy_pass http://chp_api;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host;
+            proxy_redirect off;
+            proxy_read_timeout 3600;
+        }
+
+        location /staticfiles/ {
+            alias /home/chp_api/web/staticfiles/;
+        }
+    }
+{{- else }}
+{{ .Values.nginx.config.custom | indent 4 }}
+{{- end }}
+{{- end }}
