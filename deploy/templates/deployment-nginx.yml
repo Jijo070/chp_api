@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "chp.fullname" . }}-nginx-pod
+spec:
+  containers:
+    - name: nginx-container
+      image: k8s.gcr.io/busybox
+      command: [ "/bin/sh", "-c", "ls /etc/config/" ]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+      ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+  volumes:
+    - name: config-volume
+      configMap:
+        # Provide the name of the ConfigMap containing the files you want
+        # to add to the container
+        name: {{ include "chp.fullname" . }}-nginxconfig
+  restartPolicy: Never
