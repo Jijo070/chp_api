@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  startup.sh: |-
-#!/bin/bash
-python3 manage.py makemigrations
-python3 manage.py migrate --noinput
-python3 manage.py collectstatic --no-input
+  startup.sh: |
+  #!/bin/bash
+  python3 manage.py makemigrations
+  python3 manage.py migrate --noinput
+  python3 manage.py collectstatic --no-input
