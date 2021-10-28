@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [ "/bin/sh", "-c", "ls /etc/config/" ]
           ports:
-        - name: http
-          containerPort: 80
-          protocol: TCP
+            - name: http
+              containerPort: 80
+              protocol: TCP
       volumes:
         - name: config-volume
           configMap:
