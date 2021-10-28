@@ -30,11 +30,6 @@ spec:
               secretKeyRef:
                 name: {{ include "chp.fullname" . }}-secret
                 key: SECRET_KEY
-          - name: DJANGO_ALLOWED_HOSTS
-            valueFrom:
-              secretKeyRef:
-                name: {{ include "chp.fullname" . }}-secret
-                key: DJANGO_ALLOWED_HOSTS
           - name: SQL_ENGINE
             valueFrom:
               secretKeyRef:

@@ -80,7 +80,6 @@ affinity:
 #env variables
 debug: DEBUG_PH
 secret_key: SECRET_KEY_PH
-django_allowed_hosts: DJANGO_ALLOWED_HOSTS
 sql_engine: SQL_ENGINE_PH
 sql_database: SQL_DATABASE
 sql_user: SQL_USER_PH
