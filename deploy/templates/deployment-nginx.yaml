@@ -23,10 +23,10 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
-  volumes:
-    - name: config-volume
-      configMap:
-        # Provide the name of the ConfigMap containing the files you want
-        # to add to the container
-        name: {{ include "chp.fullname" . }}-nginxconfig
-  restartPolicy: Always
+      volumes:
+        - name: config-volume
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: {{ include "chp.fullname" . }}-nginxconfig
+      restartPolicy: Always
