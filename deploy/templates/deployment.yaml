@@ -89,10 +89,10 @@ spec:
                 #   httpGet:
                 #     path: /
                 #     port: http
-          # volumeMounts:
-          # - name: config-vol
-          #   mountPath: /etc/startup.sh
-          #   subPath: startup.sh
+          volumeMounts:
+          - name: {{ include "chp.fullname" . }}-vol
+            mountPath: /etc/startup.sh
+            subPath: startup.sh
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -101,11 +101,11 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      # volumes:
-      #   - name: config-vol
-      #     configMap:
-      #       name: chp-config
-      #       defaultMode: 0755
-      #       items:
-      #         - key: startup.sh
-      #           path: startup.sh
+      volumes:
+        - name: config-vol
+          configMap:
+            name: {{ include "chp.fullname" . }}-startup
+            defaultMode: 0755
+            items:
+              - key: startup.sh
+                path: startup.sh
