@@ -28,8 +28,8 @@ helm -n ${namespace} delete ${projectName}
 
 sed -i.bak \
     -e "s/DJANGO_ALLOWED_HOSTS_VALUE/${DJANGO_ALLOWED_HOSTS}/g" \
-    deployment.yaml
-rm deployment.yaml.bak
+    templates/deployment.yaml
+rm templates/deployment.yaml.bak
 
 echo $DJANGO_ALLOWED_HOSTS
 
