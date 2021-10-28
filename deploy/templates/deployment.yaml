@@ -90,7 +90,7 @@ spec:
                 #     path: /
                 #     port: http
           volumeMounts:
-          - name: {{ include "chp.fullname" . }}-vol
+          - name: config-vol
             mountPath: /etc/startup.sh
             subPath: startup.sh
       {{- with .Values.affinity }}
@@ -104,8 +104,7 @@ spec:
       volumes:
         - name: config-vol
           configMap:
-            name: {{ include "chp.fullname" . }}-startup
+            name: chp-startup
             defaultMode: 0755
             items:
               - key: startup.sh
-                path: startup.sh
