@@ -1,12 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
-  name: {{ include "chp.fullname" . }}-nginx
+  name: {{ include "chp.fullname" . }}-nginx-pod
 spec:
-  replicas: 1
   containers:
     - name: nginx-container
       image: nginx:1.14.2
+      command: [ "/bin/sh", "-c", "ls /etc/config/" ]
       volumeMounts:
       - name: config-volume
         mountPath: /etc/config
@@ -20,4 +20,4 @@ spec:
         # Provide the name of the ConfigMap containing the files you want
         # to add to the container
         name: {{ include "chp.fullname" . }}-nginxconfig
-  restartPolicy: Always
+  restartPolicy: Never
