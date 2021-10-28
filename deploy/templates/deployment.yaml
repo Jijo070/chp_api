@@ -73,7 +73,7 @@ spec:
                   name: {{ include "chp.fullname" . }}-secret
                   key: DJANGO_SETTINGS_MODULE
           command:
-            - ["/bin/bash","-c", "startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
+            - ["/bin/bash","-c", "/etc/startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
           args:
             - "tail -f /dev/null" 
           #   - "gunicorn -c gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000"
