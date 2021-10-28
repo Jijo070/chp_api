@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  nginx.conf: |-
+  default.conf: |-
 {{- if .Values.nginx.config.default }}
 
     upstream chp_api {

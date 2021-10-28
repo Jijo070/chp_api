@@ -24,6 +24,6 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: {{ include "chp.fullname" . }}
+              name: chp-api-nginx
               port:
                 number: {{ .Values.service.port }}
