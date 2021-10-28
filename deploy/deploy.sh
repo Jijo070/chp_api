@@ -33,7 +33,7 @@ rm templates/deployment.yaml.bak
 
 echo $DJANGO_ALLOWED_HOSTS
 
-# kubectl create configmap chp-config -n chp --from-file=templates/startup.sh --dry-run=client -o yaml | kubectl apply -f -
+kubectl create configmap chp-config -n chp --from-file=templates/startup.sh --dry-run=client -o yaml | kubectl apply -f -
 
 # deploy helm chart
 helm -n ${namespace} install --set debug=:$DEBUG,secret_key=$SECRET_KEY,sql_engine=$SQL_ENGINE,sql_database=$SQL_DATABASE,sql_user=$SQL_USER,sql_password=$SQL_PASSWORD,sql_host=$SQL_HOST,sql_port=:$SQL_PORT,database=$DATABASE,django_settings_module=$DJANGO_SETTINGS_MODULE ${projectName} ./
