@@ -93,13 +93,6 @@ spec:
           - name: config-vol
             mountPath: /etc/startup.sh
             subPath: startup.sh
-      volumes:
-        - name: config-vol
-          configMap:
-            name: chp-config
-            items:
-              - key: startup.sh
-                path: startup.sh
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -108,3 +101,11 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config-vol
+          configMap:
+            name: chp-config
+            defaultMode: 0755
+            items:
+              - key: startup.sh
+                path: startup.sh
