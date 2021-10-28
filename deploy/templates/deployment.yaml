@@ -89,6 +89,17 @@ spec:
                 #   httpGet:
                 #     path: /
                 #     port: http
+          volumeMounts:
+          - name: config-vol
+            mountPath: /etc/startup.sh
+            subPath: startup.sh
+      volumes:
+        - name: config-vol
+          configMap:
+            name: chp-config
+            items:
+              - key: startup.sh
+                path: startup.sh
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
