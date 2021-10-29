@@ -28,7 +28,7 @@ spec:
                 - chp-api
             topologyKey: "kubernetes.io/hostname"
         # this ensures pod only runs on node with label application=chp-api
-        nodchp-apiffinity:
+        nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
