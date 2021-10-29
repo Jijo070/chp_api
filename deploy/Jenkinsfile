@@ -63,7 +63,6 @@ pipeline {
                   withAWS(credentials:'aws-ifx-deploy') 
                   {
                       sh '''
-                      kubectl delete deployment chp-api -n chp
                       aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
                       cd deploy && /bin/bash deploy.sh
                       '''
