@@ -41,7 +41,7 @@ spec:
         image: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-rtx-chp-api:DOCKER_VERSION_VALUE
         imagePullPolicy: Always
         command: ["/bin/bash"]
-        args: ["-c", "/bin/bash /chp-api/config/startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
+        args: ["-c", "/bin/bash gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
         ports:
           - containerPort: 8000
         # volumeMounts:
