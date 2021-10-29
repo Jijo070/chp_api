@@ -1,0 +1,4 @@
+ENVIRONMENT_TAG=CI
+CHP_HOSTNAME=explanatoryagent.ci.translator.io
+CHP_ALB_TAG=transltr-eks-ci-blue-chp
+CHP_ALB_SG=translator-ci-alb-http-sg

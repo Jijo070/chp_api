@@ -18,59 +18,58 @@ pipeline {
         DOCKER_REPO_NAME = "translator-rtx-chp-api"
         KUBERNETES_BLUE_CLUSTER_NAME = "translator-eks-ci-blue-cluster"
         KUBERNETES_GREEN_CLUSTER_NAME = "translator-eks-ci-green-cluster"
-        NAMESPACE = "chp"
     }
     stages {
-      stage('Build Version'){
-          when { expression { return !params.BUILD_VERSION } }
-          steps{
-              script {
-                  BUILD_VERSION_GENERATED = VersionNumber(
-                      versionNumberString: 'v${BUILD_YEAR, XX}.${BUILD_MONTH, XX}${BUILD_DAY, XX}.${BUILDS_TODAY}',
-                      projectStartDate:    '1970-01-01',
-                      skipFailedBuilds:    true)
-                  currentBuild.displayName = BUILD_VERSION_GENERATED
-                  env.BUILD_VERSION = BUILD_VERSION_GENERATED
-                  env.BUILD = 'true'
-              }
-          }
-      }
-      stage('Checkout source code') {
-          steps {
-              cleanWs()
-              checkout scm
-          }
-      }
-      stage('Build and Push Docker Image') {
-        when { expression { return env.BUILD == 'true' }}
-          steps {
-            configFileProvider([
-              configFile(fileId: '.env.prod', targetLocation: 'deploy/configs/.env.prod')
-            ]){
-              script {
-                  docker.build(env.DOCKER_REPO_NAME, "--no-cache -f ./chp_api/Dockerfile.prod ./chp_api")
-                  docker.withRegistry('https://853771734544.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-ifx-deploy') {
-                      docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
-                  }
-              }
+        stage('Build Version'){
+            when { expression { return !params.BUILD_VERSION } }
+            steps{
+                script {
+                    BUILD_VERSION_GENERATED = VersionNumber(
+                        versionNumberString: 'v${BUILD_YEAR, XX}.${BUILD_MONTH, XX}${BUILD_DAY, XX}.${BUILDS_TODAY}',
+                        projectStartDate:    '1970-01-01',
+                        skipFailedBuilds:    true)
+                    currentBuild.displayName = BUILD_VERSION_GENERATED
+                    env.BUILD_VERSION = BUILD_VERSION_GENERATED
+                    env.BUILD = 'true'
+                }
             }
-          }
-      }
-      stage('Deploy to AWS EKS Blue') {
-          steps {
+        }
+        stage('Checkout source code') {
+            steps {
+                cleanWs()
+                checkout scm
+            }
+        }
+        stage('Build Docker') {
+           when { expression { return env.BUILD == 'true' }}
+            steps {
+                configFileProvider([
+                  configFile(fileId: '.env.prod', targetLocation: 'deploy/configs/.env.prod')
+                ]){
+                  script {
+                      docker.build(env.DOCKER_REPO_NAME, "--no-cache -f ./chp_api/Dockerfile.prod ./chp_api")
+                      docker.withRegistry('https://853771734544.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-ifx-deploy') {
+                          docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
+                      }
+                  }
+                }
+            }
+        }
+        stage('Deploy to AWS EKS Blue') {
+            steps {
               configFileProvider([
-                  configFile(fileId: '.env.prod', targetLocation: 'deploy/env')
+                  configFile(fileId: '.env.prod', targetLocation: 'deploy/.env')
               ]){
                   withAWS(credentials:'aws-ifx-deploy') 
                   {
                       sh '''
+                      kubectl delete deployment chp-api -n chp
                       aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
                       cd deploy && /bin/bash deploy.sh
-                      aws --region ${AWS_REGION} sts get-caller-identity
                       '''
                   }
-              }
-          }
-      }
+                }
+            }
+        }
     }
 }

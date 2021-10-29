@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chp-api
+  namespace: chp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chp-api
+  template:
+    metadata:
+      labels:
+        app: chp-api
+      annotations:
+        configHash: CONFIG_HASH_VALUE
+    spec:
+      # nodeSelection affinity(application=chp-api) such that this deployment will only select the node with that label
+      affinity:
+        # this ensures only ONE pod will run on chp-apich node
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - chp-api
+            topologyKey: "kubernetes.io/hostname"
+        # this ensures pod only runs on node with label application=chp-api
+        nodchp-apiffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: application
+                operator: In
+                values:
+                - chp-api
+      containers:
+      - name: chpapiserver
+        image: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-rtx-chp-api:DOCKER_VERSION_VALUE
+        imagePullPolicy: Always
+        command: ["/bin/bash"]
+        args: ["-c", "/chp-api/config/startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - name: config-vol
+            mountPath: /chp-api/chp_api/chp_api/settings/production.py
+            subPath: production.py
+        env:
+          - name: SQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-chp-api-config
+                key: username
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-chp-api-config
+                key: password
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: postgres-chp-api-config
+                key: secretkey
+          - name: DEBUG
+            value: DEBUG_VALUE
+          - name: DJANGO_ALLOWED_HOSTS
+            value: DJANGO_ALLOWED_HOSTS_VALUE
+          - name: SQL_ENGINE
+            value: SQL_ENGINE_VALUE
+          - name: SQL_DATABASE
+            value: SQL_DATABASE_VALUE
+          - name: SQL_HOST
+            value: SQL_HOST_VALUE
+          - name: SQL_PORT
+            value: SQL_PORT_VALUE
+          - name: DATABASE
+            value: DATABASE_VALUE
+          - name: DJANGO_SETTINGS_MODULE
+            value: DJANGO_SETTINGS_MODULE_VALUE
+      volumes:
+        - name: config-vol
+          configMap:
+            name: chp-config
+            items:
+              - key: production.py
+                path: production.py
+      # With the following two sections, we can restrict the deployment on and only on the specific node
+      # toleration to node taint such that this deployment can be scheduled on the tainted node while others without the toleration can not     
+      tolerations:
+        - key: "transltr"
+          value: "chp-api"
+          operator: "Equal"
+          effect: "NoSchedule"
+      restartPolicy: Always
