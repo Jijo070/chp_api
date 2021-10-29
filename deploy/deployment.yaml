@@ -41,13 +41,13 @@ spec:
         image: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-rtx-chp-api:DOCKER_VERSION_VALUE
         imagePullPolicy: Always
         command: ["/bin/bash"]
-        args: ["-c", "/chp-api/config/startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
+        args: ["-c", "/bin/bash /chp-api/config/startup.sh && gunicorn.config-prod.py --env DJANGO_SETTINGS_MODULE=chp_api.settings.production chp_api.wsgi:application --bind 0.0.0.0:8000" ]
         ports:
           - containerPort: 8000
-        volumeMounts:
-          - name: config-vol
-            mountPath: /chp-api/chp_api/chp_api/settings/production.py
-            subPath: production.py
+        # volumeMounts:
+        #   - name: config-vol
+        #     mountPath: /chp-api/chp_api/chp_api/settings/production.py
+        #     subPath: production.py
         env:
           - name: SQL_USER
             valueFrom:
@@ -80,13 +80,13 @@ spec:
             value: DATABASE_VALUE
           - name: DJANGO_SETTINGS_MODULE
             value: DJANGO_SETTINGS_MODULE_VALUE
-      volumes:
-        - name: config-vol
-          configMap:
-            name: chp-config
-            items:
-              - key: production.py
-                path: production.py
+      # volumes:
+      #   - name: config-vol
+      #     configMap:
+      #       name: chp-config
+      #       items:
+      #         - key: production.py
+      #           path: production.py
       # With the following two sections, we can restrict the deployment on and only on the specific node
       # toleration to node taint such that this deployment can be scheduled on the tainted node while others without the toleration can not     
       tolerations:
